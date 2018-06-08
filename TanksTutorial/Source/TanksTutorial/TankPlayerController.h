@@ -2,14 +2,16 @@
 
 #pragma once
 
-#include "Tank.h"
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Engine/World.h"
 #include "TankPlayerController.generated.h"
 
 /**
  * 
  */
+class ATank;
+
 UCLASS()
 class TANKSTUTORIAL_API ATankPlayerController : public APlayerController
 {
@@ -17,7 +19,28 @@ class TANKSTUTORIAL_API ATankPlayerController : public APlayerController
 
 public:
 	ATank* GetControlledTank() const;
+	void AimAtCrosshair();
+
+	// Ray Cast through the Crosshair Dot
+	// TRUE if hits anything in the world + returns the out parameter to determine location
+	// FALSE if it does not hit anything in the world.
+	bool GetSightRayHitLocation(FVector &OutHitLocation) const;
+
 	
+
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+
+private:
+
+	UPROPERTY(EditAnywhere)
+		float CrossHairLocationX = .5f;
+	UPROPERTY(EditAnywhere)
+		float CrossHairLocationY = .33333f;
+	UPROPERTY(EditAnywhere)
+		float LineTraceRange = 1000000.f;
+	
+	bool GetLookDirection(FVector2D ScreenLocation, FVector& LookDirection) const;
+	bool GetLookVectorHitLocation(FVector LookDirection, FVector& HitLocation) const;
 
 };
