@@ -16,12 +16,18 @@ class TANKSTUTORIAL_API UTankMovementComponent : public UNavMovementComponent
 {
 	GENERATED_BODY()
 
-	UFUNCTION(BlueprintCallable, Category = Setup)
-		void InitializeComponent(UTankTracks* LeftTrackToSet, UTankTracks* RightTrackToSet);
+public:
+	UFUNCTION(BlueprintCallable, Category = "Setup")
+		void InitializeMovementComponents(UTankTracks* LeftTrackToSet, UTankTracks* RightTrackToSet);
 
-	UFUNCTION(BlueprintCallable, Category = Input)
+	UFUNCTION(BlueprintCallable, Category = "Input")
 		void IntendMoveForward(float Throw);
 	
+	UFUNCTION(BlueprintCallable, Category = "Input")
+		void IntendTurnRight(float Throw);
+
+	virtual void RequestDirectMove(const FVector& MoveVelocity, bool bForceMaxSpeed) override;
+
 private:
 	UTankTracks* LeftTrack = nullptr;
 	UTankTracks* RightTrack = nullptr;

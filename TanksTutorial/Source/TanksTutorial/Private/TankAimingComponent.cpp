@@ -5,6 +5,7 @@
 #include "TankBarrel.h"
 #include "TankTurret.h"
 #include "Engine/World.h"
+#include "Projectile.h"
 
 // Sets default values for this component's properties
 UTankAimingComponent::UTankAimingComponent()
@@ -16,7 +17,14 @@ UTankAimingComponent::UTankAimingComponent()
 	// ...
 }
 
-void UTankAimingComponent::AimAt(FVector WorldSpaceAim, float LaunchSpeed)
+void UTankAimingComponent::InitializeAimingComponents(UTankBarrel* BarrelToSet, UTankTurret* TurretToSet)
+{
+	if (!BarrelToSet || !TurretToSet) return;
+	Barrel = BarrelToSet;
+	Turret = TurretToSet;
+}
+
+void UTankAimingComponent::AimAt(FVector WorldSpaceAim)
 {
 	if (!Barrel) return;
 	if (!Turret) return;
@@ -42,17 +50,21 @@ void UTankAimingComponent::AimAt(FVector WorldSpaceAim, float LaunchSpeed)
 		}
 	}
 
+
+
+/*
 void UTankAimingComponent::SetBarrelReference(UTankBarrel* BarrelToSet)
 {
-	Barrel = BarrelToSet;
+	
 }
 
 void UTankAimingComponent::SetTurretReference(UTankTurret* TurretToSet) {
-	Turret = TurretToSet;
+	
 }
-
+*/
 void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 {
+	if (!Barrel) return;
 	// Figure the distance between current barrel rotation and Aim Direction
 	auto BarrelRotator = Barrel->GetForwardVector().Rotation();
 	auto AimAsRotator = AimDirection.Rotation();
@@ -60,4 +72,24 @@ void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 	Barrel->Elevate(DeltaRotator.Pitch);
 	Turret->Rotate(DeltaRotator.Yaw);
 	
+}
+
+void UTankAimingComponent::Fire() {
+	auto Time = GetWorld()->GetTimeSeconds();
+	bool isReloaded = (Time - LastFireTime) > ReloadTimeInSeconds;
+
+	if (Barrel && isReloaded)
+	{
+		// Find Socket Location on Barrel for Projectile
+		auto FiringLocation = Barrel->GetSocketLocation(FName("Projectile"));
+		auto FiringRotation = Barrel->GetSocketRotation(FName("Projectile"));
+		// Spawn Projectile
+		auto Projectile = GetWorld()->SpawnActor<AProjectile>(
+			ProjectileBluePrint,
+			FiringLocation,
+			FiringRotation
+			);
+		Projectile->LaunchProjectile(LaunchSpeed);
+		LastFireTime = Time;
+	}
 }

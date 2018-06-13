@@ -18,7 +18,7 @@ class TANKSTUTORIAL_API ATankPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-	ATank* GetControlledTank() const;
+	
 	void AimAtCrosshair();
 
 	// Ray Cast through the Crosshair Dot
@@ -26,8 +26,11 @@ public:
 	// FALSE if it does not hit anything in the world.
 	bool GetSightRayHitLocation(FVector &OutHitLocation) const;
 
-	
+protected:
+	UFUNCTION(BlueprintCallable, Category = "Setup")
+		ATank* GetControlledTank() const;
 
+public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 

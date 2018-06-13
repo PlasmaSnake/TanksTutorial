@@ -11,6 +11,7 @@ class UTankTurret;
 class UTankAimingComponent;
 class AProjectile;
 class UTankTracks;
+class UTankMovementComponent;
 
 UCLASS()
 class TANKSTUTORIAL_API ATank : public APawn
@@ -20,18 +21,22 @@ public:
 
 	void AimAt(FVector HitLocation);
 
-	UFUNCTION(BlueprintCallable, Category = Setup)
-		void SetBarrelReference(UTankBarrel* BarrelToSet);
-	UFUNCTION(BlueprintCallable, Category = Setup)
-		void SetTurretReference(UTankTurret* TurretToSet);
-//	UFUNCTION(BlueprintCallable, Category = Setup)
-//		void SetTracksReference(UTankTracks* TracksToSet);
-	UFUNCTION(BluePrintCallable, Category = Firing)
+	//UFUNCTION(BlueprintCallable, Category = Setup)
+	//	void SetBarrelReference(UTankBarrel* BarrelToSet);
+	//UFUNCTION(BlueprintCallable, Category = Setup)
+	//	void SetTurretReference(UTankTurret* TurretToSet);
+		//UPROPERTY(EditDefaultsOnly, Category = Firing)
+	//	float LaunchSpeed = 4000;
+
+	UFUNCTION(BluePrintCallable, Category = "Firing")
 		void Fire();
 
 protected:
+	UPROPERTY(BlueprintReadOnly)
 	UTankAimingComponent* TankAimingComponent = nullptr;
 
+	UPROPERTY(BlueprintReadOnly)
+	UTankMovementComponent* TankMovementComponent = nullptr;
 private:
 	// Sets default values for this pawn's properties
 	ATank();
@@ -43,18 +48,18 @@ private:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	
-	UPROPERTY(EditDefaultsOnly, Category = Setup)
-		TSubclassOf<AProjectile> ProjectileBluePrint;
+	//UPROPERTY(EditDefaultsOnly, Category = Setup)
+	//	TSubclassOf<AProjectile> ProjectileBluePrint;
 
-	UPROPERTY(EditDefaultsOnly, Category = Firing)
-		float LaunchSpeed = 4000;
+	//UPROPERTY(EditDefaultsOnly, Category = Firing)
+	//	float LaunchSpeed = 4000;
 
 	//Local Reference for spawning Projectile
-	UPROPERTY(EditDefaultsOnly, Category = Firing)
-		UTankBarrel* Barrel = nullptr;
+	//UPROPERTY(EditDefaultsOnly, Category = Firing)
+	//	UTankBarrel* Barrel = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, Category = Firing)
-	float ReloadTimeInSeconds = 3;
+	//UPROPERTY(EditDefaultsOnly, Category = Firing)
+	//float ReloadTimeInSeconds = 3;
 	
-	double LastFireTime = 0;
+	//double LastFireTime = 0;
 };
