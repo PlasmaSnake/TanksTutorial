@@ -37,12 +37,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Setup")
 		void InitializeAimingComponents(UTankBarrel* BarrelToSet, UTankTurret* TurretToSet);
 
-	//void SetBarrelReference(UTankBarrel* BarrelToSet);
-	//void SetTurretReference(UTankTurret* TurretToSet);
 
 	void AimAt(FVector HitLocation);
 
-	void Fire();
+	UFUNCTION(BlueprintCallable, Category = "Firing")
+		void Fire();
+
 private:
 	UTankBarrel* Barrel = nullptr;
 	UTankTurret* Turret = nullptr;
@@ -63,5 +63,5 @@ private:
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "State")
-	EFiringState FiringStatus = EFiringState::Reloading;
+	EFiringState FiringStatus = EFiringState::Aiming;
 };

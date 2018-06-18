@@ -10,7 +10,7 @@
 /**
  * 
  */
-class ATank;
+class UTankAimingComponent;
 
 UCLASS()
 class TANKSTUTORIAL_API ATankPlayerController : public APlayerController
@@ -26,9 +26,12 @@ public:
 	// FALSE if it does not hit anything in the world.
 	bool GetSightRayHitLocation(FVector &OutHitLocation) const;
 
+
+
 protected:
-	UFUNCTION(BlueprintCallable, Category = "Setup")
-		ATank* GetControlledTank() const;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Setup")
+		void FoundAimingComponent(UTankAimingComponent* AimCompReference);
 
 public:
 	virtual void BeginPlay() override;

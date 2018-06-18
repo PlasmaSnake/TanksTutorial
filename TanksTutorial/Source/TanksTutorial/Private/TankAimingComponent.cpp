@@ -19,15 +19,14 @@ UTankAimingComponent::UTankAimingComponent()
 
 void UTankAimingComponent::InitializeAimingComponents(UTankBarrel* BarrelToSet, UTankTurret* TurretToSet)
 {
-	if (!BarrelToSet || !TurretToSet) return;
+	if (!ensure(BarrelToSet && TurretToSet)) return;
 	Barrel = BarrelToSet;
 	Turret = TurretToSet;
 }
 
 void UTankAimingComponent::AimAt(FVector WorldSpaceAim)
 {
-	if (!Barrel) return;
-	if (!Turret) return;
+	if (!ensure(Barrel && Turret)) return;
 	FVector OutLaunchVelocity;
 	FVector StartLocation = Barrel->GetSocketLocation(FName("Projectile"));
 
@@ -50,21 +49,9 @@ void UTankAimingComponent::AimAt(FVector WorldSpaceAim)
 		}
 	}
 
-
-
-/*
-void UTankAimingComponent::SetBarrelReference(UTankBarrel* BarrelToSet)
-{
-	
-}
-
-void UTankAimingComponent::SetTurretReference(UTankTurret* TurretToSet) {
-	
-}
-*/
 void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 {
-	if (!Barrel) return;
+	if (!ensure(Barrel) || !ensure(Turret)) return;
 	// Figure the distance between current barrel rotation and Aim Direction
 	auto BarrelRotator = Barrel->GetForwardVector().Rotation();
 	auto AimAsRotator = AimDirection.Rotation();
@@ -78,7 +65,8 @@ void UTankAimingComponent::Fire() {
 	auto Time = GetWorld()->GetTimeSeconds();
 	bool isReloaded = (Time - LastFireTime) > ReloadTimeInSeconds;
 
-	if (Barrel && isReloaded)
+	if (!ensure(Barrel)) return;
+	if( isReloaded )
 	{
 		// Find Socket Location on Barrel for Projectile
 		auto FiringLocation = Barrel->GetSocketLocation(FName("Projectile"));
@@ -93,3 +81,4 @@ void UTankAimingComponent::Fire() {
 		LastFireTime = Time;
 	}
 }
+
