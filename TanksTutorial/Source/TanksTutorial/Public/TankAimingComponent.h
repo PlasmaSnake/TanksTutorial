@@ -14,7 +14,8 @@ enum class EFiringState : uint8
 {
 	Aiming,
 	Reloading,
-	Locked
+	Locked,
+	NoAmmo
 };
 
 //Holds Projectile information
@@ -46,6 +47,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Firing")
 		void Fire();
 
+	void Reload();
+
 	EFiringState GetFiringState() const;
 
 private:
@@ -60,18 +63,30 @@ private:
 	bool BarrelMoving = false;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
-		float ReloadTimeInSeconds = 3;
+		float ReloadTimeInSeconds = 5;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
+		float FireTimeInSeconds = 3;
+
 	double LastFireTime = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
-		float LaunchSpeed = 4000;
+		float LaunchSpeed = 8000;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 		TSubclassOf<AProjectile> ProjectileBluePrint;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
+		int32 MaxAmmo = 4;
 
+	UFUNCTION(BlueprintCallable, Category = "Firing")
+		int32 GetAmmoCount() const;
+
+	int32 AmmoCount = 0;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "State")
-	EFiringState FiringStatus = EFiringState::Reloading;
+		EFiringState FiringStatus = EFiringState::NoAmmo;
+
+	
 };

@@ -20,15 +20,22 @@ UTankAimingComponent::UTankAimingComponent()
 void UTankAimingComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
 	auto Time = GetWorld()->GetTimeSeconds();
-	if ((Time - LastFireTime) < ReloadTimeInSeconds)
+	if (AmmoCount == 0)
 	{
-		FiringStatus = EFiringState::Reloading;
+		FiringStatus = EFiringState::NoAmmo; //TODO Set Color in BP and Reload Function
+		if ((Time - LastFireTime) > ReloadTimeInSeconds && FiringStatus == EFiringState::NoAmmo) Reload();
 	}
-	else if (BarrelMoving)
-	{
-		FiringStatus = EFiringState::Aiming;
+	else if (AmmoCount > 0) {
+		if ((Time - LastFireTime) < FireTimeInSeconds)
+		{
+			FiringStatus = EFiringState::Reloading;
+		}
+		else if (BarrelMoving)
+		{
+			FiringStatus = EFiringState::Aiming;
+		}
+		else FiringStatus = EFiringState::Locked; 
 	}
-	else FiringStatus = EFiringState::Locked;
 }
 
 void UTankAimingComponent::BeginPlay()
@@ -92,7 +99,7 @@ void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 void UTankAimingComponent::Fire() {
 	auto Time = GetWorld()->GetTimeSeconds();
 	if (!ensure(Barrel && ProjectileBluePrint)) return;
-	if( FiringStatus != EFiringState::Reloading )
+	if( FiringStatus != EFiringState::Reloading && FiringStatus != EFiringState::NoAmmo && AmmoCount > 0)
 	{
 		// Find Socket Location on Barrel for Projectile
 		auto FiringLocation = Barrel->GetSocketLocation(FName("Projectile"));
@@ -105,7 +112,9 @@ void UTankAimingComponent::Fire() {
 			);
 		Projectile->LaunchProjectile(LaunchSpeed);
 		LastFireTime = Time;
-		FiringStatus = EFiringState::Reloading;
+		AmmoCount--;
+		//if (AmmoCount == 0) FiringStatus = EFiringState::NoAmmo;
+		//else FiringStatus = EFiringState::Reloading;
 	}
 }
 
@@ -114,3 +123,12 @@ EFiringState UTankAimingComponent::GetFiringState() const
 	return FiringStatus;
 }
 
+void UTankAimingComponent::Reload() {
+	UE_LOG(LogTemp, Warning, TEXT("%s: Reloaded."), *GetOwner()->GetName());
+	AmmoCount = MaxAmmo;
+	//FiringStatus = EFiringState::Aiming;
+}
+
+int32 UTankAimingComponent::GetAmmoCount() const {
+	return AmmoCount;
+}
