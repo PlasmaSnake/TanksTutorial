@@ -17,6 +17,33 @@ UTankAimingComponent::UTankAimingComponent()
 	// ...
 }
 
+void UTankAimingComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
+{
+	auto Time = GetWorld()->GetTimeSeconds();
+	if ((Time - LastFireTime) < ReloadTimeInSeconds)
+	{
+		FiringStatus = EFiringState::Reloading;
+	}
+	else if (BarrelMoving)
+	{
+		FiringStatus = EFiringState::Aiming;
+	}
+	else FiringStatus = EFiringState::Locked;
+}
+
+void UTankAimingComponent::BeginPlay()
+{
+	auto Time = GetWorld()->GetTimeSeconds();
+	LastFireTime = Time;
+}
+
+bool UTankAimingComponent::IsBarrelMoving(FVector AimDirection) {
+
+	if (!ensure(Barrel)) return false;
+	auto BarrelRotator = Barrel->GetForwardVector();
+	if (AimDirection.Equals(BarrelRotator, .01)) return false;
+	return true;
+}
 void UTankAimingComponent::InitializeAimingComponents(UTankBarrel* BarrelToSet, UTankTurret* TurretToSet)
 {
 	if (!ensure(BarrelToSet && TurretToSet)) return;
@@ -57,16 +84,15 @@ void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 	auto AimAsRotator = AimDirection.Rotation();
 	auto DeltaRotator = AimAsRotator - BarrelRotator;
 	Barrel->Elevate(DeltaRotator.Pitch);
-	Turret->Rotate(DeltaRotator.Yaw);
-	
+	if (DeltaRotator.Yaw < 180) Turret->Rotate(DeltaRotator.Yaw);
+	else Turret->Rotate(FMath::Abs<float>(DeltaRotator.Yaw));
+	BarrelMoving = IsBarrelMoving(AimDirection);
 }
 
 void UTankAimingComponent::Fire() {
 	auto Time = GetWorld()->GetTimeSeconds();
-	bool isReloaded = (Time - LastFireTime) > ReloadTimeInSeconds;
-
-	if (!ensure(Barrel)) return;
-	if( isReloaded )
+	if (!ensure(Barrel && ProjectileBluePrint)) return;
+	if( FiringStatus != EFiringState::Reloading )
 	{
 		// Find Socket Location on Barrel for Projectile
 		auto FiringLocation = Barrel->GetSocketLocation(FName("Projectile"));
@@ -79,6 +105,12 @@ void UTankAimingComponent::Fire() {
 			);
 		Projectile->LaunchProjectile(LaunchSpeed);
 		LastFireTime = Time;
+		FiringStatus = EFiringState::Reloading;
 	}
+}
+
+EFiringState UTankAimingComponent::GetFiringState() const
+{
+	return FiringStatus;
 }
 

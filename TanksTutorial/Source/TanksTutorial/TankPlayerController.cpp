@@ -20,11 +20,13 @@ void ATankPlayerController::Tick(float DeltaTime)
 
 void ATankPlayerController::AimAtCrosshair()
 {
+	if (!GetPawn()) return;
 	auto TankAimingComponent = GetPawn()->FindComponentByClass<UTankAimingComponent>();
 	if (!ensure(GetPawn()) || !ensure(TankAimingComponent)) return;
 
 	FVector HitLocation; // OUT Parameter
-	if (GetSightRayHitLocation(HitLocation)) {
+	auto bHaveAimSolution = GetSightRayHitLocation(HitLocation);
+	if (bHaveAimSolution) {
 		TankAimingComponent->AimAt(HitLocation);
 	}
 	else UE_LOG(LogTemp, Warning, TEXT("Look Error"));
@@ -41,8 +43,7 @@ bool ATankPlayerController::GetSightRayHitLocation(FVector &OutHitLocation) cons
 	if (GetLookDirection(ScreenLocation, LookDirection))
 	{
 		// Line-Trace Along LookDirection and see what we hit.
-		GetLookVectorHitLocation(LookDirection, OutHitLocation);
-		return true;
+		return GetLookVectorHitLocation(LookDirection, OutHitLocation);
 	}
 	return false;
 } // contains out parameter for HitLocation
