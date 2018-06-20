@@ -42,6 +42,7 @@ void UTankAimingComponent::BeginPlay()
 {
 	auto Time = GetWorld()->GetTimeSeconds();
 	LastFireTime = Time;
+	AmmoCount = MaxAmmo;
 }
 
 bool UTankAimingComponent::IsBarrelMoving(FVector AimDirection) {
@@ -64,7 +65,6 @@ void UTankAimingComponent::AimAt(FVector WorldSpaceAim)
 	FVector OutLaunchVelocity;
 	FVector StartLocation = Barrel->GetSocketLocation(FName("Projectile"));
 
-	// Calculate the OutLaunch Velocity (SuggestProjectileVelocity)
 	bool bHaveAimSolution = UGameplayStatics::SuggestProjectileVelocity(
 		this,
 		OutLaunchVelocity,
@@ -91,8 +91,9 @@ void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 	auto AimAsRotator = AimDirection.Rotation();
 	auto DeltaRotator = AimAsRotator - BarrelRotator;
 	Barrel->Elevate(DeltaRotator.Pitch);
-	if (DeltaRotator.Yaw < 180) Turret->Rotate(DeltaRotator.Yaw);
-	else Turret->Rotate(FMath::Abs<float>(DeltaRotator.Yaw));
+	if (FMath::Abs<float>(DeltaRotator.Yaw < 180)) 
+		Turret->Rotate(DeltaRotator.Yaw);
+	else Turret->Rotate(-DeltaRotator.Yaw);
 	BarrelMoving = IsBarrelMoving(AimDirection);
 }
 
@@ -113,8 +114,6 @@ void UTankAimingComponent::Fire() {
 		Projectile->LaunchProjectile(LaunchSpeed);
 		LastFireTime = Time;
 		AmmoCount--;
-		//if (AmmoCount == 0) FiringStatus = EFiringState::NoAmmo;
-		//else FiringStatus = EFiringState::Reloading;
 	}
 }
 
@@ -124,9 +123,7 @@ EFiringState UTankAimingComponent::GetFiringState() const
 }
 
 void UTankAimingComponent::Reload() {
-	UE_LOG(LogTemp, Warning, TEXT("%s: Reloaded."), *GetOwner()->GetName());
 	AmmoCount = MaxAmmo;
-	//FiringStatus = EFiringState::Aiming;
 }
 
 int32 UTankAimingComponent::GetAmmoCount() const {

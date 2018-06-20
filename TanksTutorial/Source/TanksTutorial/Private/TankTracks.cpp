@@ -4,7 +4,7 @@
 #include "Engine/World.h"
 
 UTankTracks::UTankTracks() {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 void UTankTracks::BeginPlay()

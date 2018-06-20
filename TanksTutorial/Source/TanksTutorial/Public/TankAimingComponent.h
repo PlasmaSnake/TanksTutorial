@@ -82,11 +82,11 @@ private:
 	UFUNCTION(BlueprintCallable, Category = "Firing")
 		int32 GetAmmoCount() const;
 
-	int32 AmmoCount = 0;
+	int32 AmmoCount = MaxAmmo;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "State")
-		EFiringState FiringStatus = EFiringState::NoAmmo;
+		EFiringState FiringStatus = EFiringState::Reloading;
 
 	
 };
